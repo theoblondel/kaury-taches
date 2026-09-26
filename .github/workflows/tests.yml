@@ -1,0 +1,25 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  simulateur:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Page de l'app
+        run: node test/simulateur.mjs app
+      - name: Widgets (toutes les tailles)
+        run: |
+          for f in small medium large accessoryRectangular accessoryInline accessoryCircular; do
+            echo "::group::$f"
+            node test/simulateur.mjs widget-$f
+            echo "::endgroup::"
+          done
+      - name: Le JavaScript de la page se lit
+        run: node -e "const h=require('fs').readFileSync('test/apercu.html','utf8'); new Function(h.split('<script>')[1].split('</script>')[0]); console.log('ok')"
